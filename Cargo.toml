@@ -6,5 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-s_8_core = {path = "../S-8-Core"}
+s_8_core = {path = "../s-8-core" }
 sdl2 = "0.35.2"

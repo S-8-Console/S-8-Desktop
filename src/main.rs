@@ -60,7 +60,7 @@ pub fn main() {
 
     //make ticks per frame equal to the amount of instructions.
     let ticks_per_frame = game_buffer.len()/2;
-
+    let loop_point = s_8.get_loop_point();
     'running: loop {
         // Clear canvas as black
         canvas.set_draw_color(Color::RGB(0, 0, 0));
@@ -87,8 +87,13 @@ pub fn main() {
         }
 
         /* Tick as many times as opcodes there are */
-        for _i in 0..ticks_per_frame {
-            s_8.tick();
+        loop {
+            let pc = s_8.tick();
+
+            if pc == loop_point
+            {
+                break;
+            }
         }
         let screen = s_8.get_screen();
 
@@ -101,8 +106,6 @@ pub fn main() {
             }
         }
 
-        //reset pc
-        s_8.set_pc(0);
         canvas.present();
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
