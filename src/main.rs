@@ -18,30 +18,35 @@ const SCALE: u32 = 10;
 const WINDOW_SIZE: u32 = 64*SCALE;
 pub fn main() {
     let args: Vec<_> = env::args().collect();
-    if args.len() != 3 {
-        println!("Usage: cargo run path/to/game_rom path/to/sprite_rom");
+    if args.len() != 4 {
+        println!("Usage: cargo run path/to/game_rom path/to/sprite_rom path/to/font_rom");
         return;
     }
 
     let game_rom_path = &args[1];
     let sprite_rom_path = &args[2];
+    let font_rom_path = &args[3];
 
     let mut s_8 = Emulator::new();
-    let mut game_rom = File::open(game_rom_path).expect("Unable to open file");
-    let mut sprite_rom = File::open(sprite_rom_path).expect("Unable to open file");
+    let mut game_rom = File::open(game_rom_path).expect("Unable to open game rom file.");
+    let mut sprite_rom = File::open(sprite_rom_path).expect("Unable to open sprite rom file.");
+    let mut font_rom = File::open(font_rom_path).expect("Unable to open font rom file.");
 
     let mut game_buffer = Vec::new();
     let mut sprite_buffer = Vec::new();
+    let mut font_buffer = Vec::new();
+
     game_rom.read_to_end(&mut game_buffer).unwrap();
     sprite_rom.read_to_end(&mut sprite_buffer).unwrap();
+    font_rom.read_to_end(&mut font_buffer).unwrap();
 
-
-    if game_buffer.len() > 512 || sprite_buffer.len() > 512 {
-        panic!("Both of your roms must be under a size of 512 bytes!");
+    if game_buffer.len() > 512 || sprite_buffer.len() > 512 || font_buffer.len() != 1152  {
+        panic!("Your game buffer and sprite buffer must not be greater than 512 bytes, and your font buffer must be 1120 bytes");
     }
 
     s_8.load(&game_buffer, 0, game_buffer.len());
     s_8.load(&sprite_buffer, 512, 512+sprite_buffer.len());
+    s_8.load(&font_buffer, 1024, 1024+font_buffer.len());
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
@@ -58,8 +63,6 @@ pub fn main() {
     canvas.present();
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    //make ticks per frame equal to the amount of instructions.
-    let ticks_per_frame = game_buffer.len()/2;
     let loop_point = s_8.get_loop_point();
     'running: loop {
         // Clear canvas as black
