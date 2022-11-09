@@ -1,15 +1,18 @@
+mod keyboard_handler;
+
 extern crate sdl2;
 
 use s_8_core::*;
 use std::env;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
+use sdl2::keyboard::{Keycode, Scancode};
 use std::time::Duration;
 use sdl2::rect::Rect;
 
 use std::fs::File;
 use std::io::Read;
+use crate::keyboard_handler::{key_to_button};
 
 
 const SCALE: u32 = 10;
@@ -61,6 +64,7 @@ pub fn main() {
     canvas.set_draw_color(Color::RGB(0, 255, 255));
     canvas.clear();
     canvas.present();
+
     let mut event_pump = sdl_context.event_pump().unwrap();
 
     let loop_point = s_8.get_loop_point();
@@ -114,18 +118,7 @@ pub fn main() {
     }
 }
 
-fn key_to_button(keycode: Keycode) -> Option<usize>
-{
-    match keycode {
-        Keycode::Q => Some(0x0),
-        Keycode::Z => Some(0x1),
-        Keycode::S => Some(0x2),
-        Keycode::D => Some(0x3),
-        Keycode::J => Some(0x4),
-        Keycode::K => Some(0x5),
-        _ => None,
-    }
-}
+
 // Convertes the color code from the S-8 Console to an rgb value
 fn colorcode_to_rgb(colorcode: u8) -> Color
 {
